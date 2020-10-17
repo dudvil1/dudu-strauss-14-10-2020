@@ -1,0 +1,81 @@
+const { createLogger, format, transports } = require("winston");
+
+require("winston-daily-rotate-file");
+const fs = require("fs");
+const path = require("path");
+
+const logDir = "logs";
+const datePatternConfiguration = {
+  default: "YYYY-MM-DD",
+  everHour: "YYYY-MM-DD-HH",
+  everMinute: "YYYY-MM-DD-THH-mm",
+};
+
+numberOfDaysToKeepLog = 30;
+fileSizeToRotate = 1;
+
+const dailyRotateFileTransport = (level) =>
+  new transports.DailyRotateFile({
+    filename: `${logDir}/%DATE%-herolo${level}.log`,
+    datePattern: datePatternConfiguration.everHour,
+    zippedArchive: true,
+    maxSize: `${fileSizeToRotate}m`,
+    maxFiles: `${numberOfDaysToKeepLog}d`,
+  });
+
+const baseFormat = format.combine(
+  format.json(),
+  format.timestamp({
+    format: "YYYY-MM-DD HH:mm:ss",
+  }),
+  format.printf((info) => {
+    const { location, data, err } = info[Symbol.for("splat")][0];
+    const locationString = location ? `Location - ${location}` : "";
+    const dataString = data ? `data - ${JSON.stringify(data)}` : "";
+    const errorString = err ? `error - ${err}` : "";
+    const res = `${info.timestamp}| ${info.level}: ${info["message"]} 
+                \t${locationString}\t${dataString}\t${errorString}`;
+    return res;
+  })
+);
+
+const errorLogger = createLogger({
+  level: "error",
+  handleExceptions: true,
+  format: baseFormat,
+  transports: [dailyRotateFileTransport("-err")],
+});
+
+const infoLogger = createLogger({
+  level: "info",
+  handleExceptions: true,
+  format: baseFormat,
+  transports: [dailyRotateFileTransport("-info")],
+});
+
+const dubugLogger = createLogger({
+  level: "debug",
+  handleExceptions: true,
+  format: baseFormat,
+  transports: [dailyRotateFileTransport("-dubug")],
+});
+
+exports.stream = () => {
+  errorLogger.stream = {
+    write: (message) => {
+      errorLogger.error(message);
+    },
+  };
+};
+
+exports.info = (message, obj) => {
+  infoLogger.info(message, obj);
+};
+
+exports.error = (message, obj) => {
+  errorLogger.error(message, obj);
+};
+
+exports.debug = (message, obj) => {
+  dubugLogger.debug(message, obj);
+};
