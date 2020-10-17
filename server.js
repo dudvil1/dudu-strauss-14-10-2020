@@ -2,10 +2,10 @@ const http = require('http');
 
 const app = require('./app');
 
-const port =  5000;
+const PORT = process.env.PORT || 5000;
 
 const server = http.createServer(app);
 
-server.listen(port, function () {
+server.listen(PORT, function () {
     console.log('Server run - listen port 3000...');
   });
