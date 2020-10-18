@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
  
-exports.checkPassword = (password) => {
-  return bcrypt.compareSync(password, 10, (err, res) => {
+exports.checkPassword = (password,userPassword) => {
+  return bcrypt.compareSync(password, userPassword, (err, res) => {
     if (err) return false;
     return res;
   });

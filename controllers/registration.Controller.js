@@ -19,7 +19,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res,next) => {
   try {
     const user = await db.findUserByEmail(req.body.email);
     if (!user)
