@@ -4,11 +4,7 @@ const Messege = require("../../models/messege.model");
 exports.addMessege = async (messege) => {
   const newMeesege = new Messege({
     _id: new mongoose.Types.ObjectId(),
-    sender: messege.sender,
-    reciver: messege.receiver,
-    subject: messege.subject,
-    messege: messege.messege,
-    cretionDate: messege.cretionDate,
+    ...messege
   });
   return await newMeesege.save();
 };
