@@ -16,10 +16,9 @@ exports.getAllMesseges = async (req, res, next) => {
     const userEmail = req.user.user.email;
     const messages = await db.getAllMesseges(userEmail);
 
-    if (messages.length > 0)
-      return res.status(201).json({
-        messages: messages
-      });
+    return res.status(201).json({
+      messages: messages,
+    });
   } catch (error) {
     next(error);
   }
